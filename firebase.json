@@ -1,0 +1,34 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "agape-bb2de",
+          "appId": "1:474129642846:android:b46124dddae933fc1d4bcf",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "agape-bb2de",
+          "appId": "1:474129642846:ios:69645248a90fd9621d4bcf",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "agape-bb2de",
+          "configurations": {
+            "android": "1:474129642846:android:b46124dddae933fc1d4bcf",
+            "ios": "1:474129642846:ios:69645248a90fd9621d4bcf",
+            "web": "1:474129642846:web:c4470e31a9e04e191d4bcf"
+          }
+        }
+      }
+    }
+  }
+}

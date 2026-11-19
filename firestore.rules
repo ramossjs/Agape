@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.role == 'admin';
+    }
+
+    function isModerator() {
+      return signedIn() &&
+        (request.auth.token.role == 'moderador' || isAdmin());
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isModerator());
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.role in ['cliente', 'restaurante', 'banco']
+        && request.resource.data.status in [
+          'correo_no_verificado',
+          'pendiente_revision'
+        ];
+
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['uid', 'role', 'status', 'emailVerified']);
+
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['emailVerified', 'status', 'updatedAt'])
+        && request.resource.data.emailVerified == true
+        && (
+          (resource.data.role == 'cliente'
+            && request.resource.data.status == 'activo')
+          ||
+          (resource.data.role in ['restaurante', 'banco']
+            && request.resource.data.status == 'pendiente_revision')
+        );
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /offers/{offerId} {
+      allow read: if true;
+      allow create, update, delete: if isModerator();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
